@@ -14,7 +14,7 @@
 ## features
 
 - **hyprland** — dynamic tiling wm with smooth animations, blur, rounded corners, and pypr scratchpads
-- **waybar** — top status bar with 4 themes (default, experimental, line, zen); modules for workspaces, clock, tray, network, battery, bluetooth, and pacman updates
+- **waybar** — top status bar with 4 themes (default, experimental, line, zen) switchable via `Alt+B`; modules for workspaces, clock, tray, network, battery, bluetooth, and pacman updates
 - **kitty** — terminal with everforest dark hard theme and nerd font
 - **neovim** — full IDE setup via lazy.nvim: treesitter, LSP (via mason), telescope, neo-tree, copilot, snacks, and more
 - **dunst + swaync** — dual notification stack; dunst for lightweight toasts, swaync for a control center with inline replies and 2fa actions
@@ -100,6 +100,8 @@ alpha, autopair, cmdline, colorscheme, completions, copilot, copilot-chat, css-c
 | **experimental** | alternative layout & styling                                          |
 | **line**         | thin line separator style                                             |
 | **zen**          | ultra-minimal, low distraction                                        |
+
+switch themes with **`Alt+B`** — opens a wofi picker showing preview images for each theme. click one and waybar restarts with the new look.
 
 ### colors
 
