@@ -42,6 +42,7 @@ class LockScreen:
 
         css = b"""
         window { background: black; }
+        label { color: #c8c8c8; font-family: "CodeNewRoman Nerd Font Propo"; }
         """
         prov = Gtk.CssProvider()
         prov.load_from_data(css)
@@ -49,7 +50,7 @@ class LockScreen:
             screen, prov, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
         )
 
-        self.win = Gtk.Window(type=Gtk.WindowType.POPUP)
+        self.win = Gtk.Window(type=Gtk.WindowType.TOPLEVEL)
         self.win.set_app_paintable(True)
         self.win.set_decorated(False)
         self.win.set_resizable(False)
@@ -68,6 +69,8 @@ class LockScreen:
         self.win.add(overlay)
 
         self.bg = Gtk.DrawingArea()
+        self.bg.set_hexpand(True)
+        self.bg.set_vexpand(True)
         overlay.add(self.bg)
 
         self.char_label = Gtk.Label()
@@ -148,7 +151,7 @@ class LockScreen:
             age = now - t
             a = 1.0 - (age / (FADE_MS / 1000))
             a = max(0.05, min(1.0, a))
-            parts.append(f'<span alpha="{alpha_hex(a)}" font_desc="48">{c}</span>')
+            parts.append(f'<span alpha="{alpha_hex(a)}" size="48000">{c}</span>')
         self.char_label.set_markup(" ".join(parts))
 
     def add_char(self, c):
@@ -171,7 +174,7 @@ class LockScreen:
             Gtk.main_quit()
         else:
             self.fail_label.set_markup(
-                f'<span alpha="ffff" font_desc="20" foreground="#ff4444">NO</span>'
+                f'<span alpha="ffff" size="24000" foreground="#ff4444">NO</span>'
             )
             self.pwd = ""
             self.chars = []
