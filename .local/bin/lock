@@ -26,37 +26,41 @@ CHARS = list(
 )
 
 TMP = "/tmp/lock-screen.png"
-TMP_BLUR = "/tmp/lock-blur.png"
 FADE_MS = 2000
 TICK_MS = 50
-CACHE_TTL = 30
 
 capture_ready = False
 
 def capture():
     subprocess.run(["grim", "-o", "eDP-1", TMP], capture_output=True)
-    subprocess.run(["magick", TMP, "-resize", "50%", "-blur", "0x4",
-                    "-resize", "200%", TMP_BLUR], capture_output=True)
     global capture_ready
     capture_ready = True
 
-need_fresh = not (os.path.exists(TMP_BLUR) and time.time() - os.path.getmtime(TMP_BLUR) < CACHE_TTL)
-if need_fresh:
-    threading.Thread(target=capture).start()
+threading.Thread(target=capture).start()
+
+WAL = os.path.expanduser("~/.cache/wal/wal")
+WALL = None
+if os.path.exists(WAL):
+    try:
+        p = open(WAL).read().strip()
+        if os.path.exists(p):
+            WALL = p
+    except Exception:
+        pass
 
 class LockScreen:
     def __init__(self):
         self.pwd = ""
         self.chars = []
         self.raw = None
-        self.blur = None
+        self.wall = None
         self.fade = 0.0
         self.closing = False
         self.ready = False
 
-        if os.path.exists(TMP_BLUR):
+        if WALL:
             try:
-                self.blur = GdkPixbuf.Pixbuf.new_from_file(TMP_BLUR)
+                self.wall = GdkPixbuf.Pixbuf.new_from_file(WALL)
             except Exception:
                 pass
 
@@ -98,9 +102,7 @@ class LockScreen:
 
         GLib.timeout_add(16, self.anim_tick)
         GLib.timeout_add(TICK_MS, self.tick)
-
-        if need_fresh:
-            GLib.timeout_add(50, self.poll_raw)
+        GLib.timeout_add(50, self.poll_raw)
 
     def anim_tick(self):
         if self.closing:
@@ -134,17 +136,13 @@ class LockScreen:
         cr.set_source_rgb(0.05, 0.05, 0.05)
         cr.paint()
 
-        pix = self.raw or self.blur
+        pix = self.raw or self.wall
         if pix and self.fade > 0:
-            if self.raw:
-                cr.save()
-                cr.scale(0.5, 0.5)
-                Gdk.cairo_set_source_pixbuf(cr, self.raw, 0, 0)
-                cr.paint()
-                cr.restore()
-            else:
-                Gdk.cairo_set_source_pixbuf(cr, self.blur, 0, 0)
-                cr.paint()
+            cr.save()
+            cr.scale(0.5, 0.5)
+            Gdk.cairo_set_source_pixbuf(cr, pix, 0, 0)
+            cr.paint()
+            cr.restore()
             cr.set_source_rgba(0, 0, 0, 0.25)
             cr.paint()
 
