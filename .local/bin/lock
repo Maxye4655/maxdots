@@ -56,8 +56,8 @@ def blur_image(src, w, h):
     ox = (sw - w) // 2
     oy = (sh - h) // 2
     full = GdkPixbuf.Pixbuf.new_subpixbuf(scaled, ox, oy, w, h)
-    bw = w // 6
-    bh = h // 6
+    bw = w // 12
+    bh = h // 12
     return full.scale_simple(bw, bh, GdkPixbuf.InterpType.BILINEAR)
 
 class LockScreen:
@@ -66,7 +66,9 @@ class LockScreen:
         self.chars = []
         self.bg = None
         self.fade = 0.0
-        self.closing = False
+        self.fade_anim = 1
+        self.fade_t = 0
+        self.fade_dur = 28
         self.ready = False
 
         css = b"""
@@ -123,19 +125,24 @@ class LockScreen:
             pass
 
     def anim_tick(self):
-        if self.closing:
-            if self.fade > 0:
-                self.fade = max(0, self.fade - 0.10)
-                self.win.queue_draw()
-                return True
-            os.unlink(PID)
-            Gtk.main_quit()
-            return False
-        if self.fade < 1.0:
-            self.fade = min(1.0, self.fade + 0.08)
+        if self.fade_anim == -1:
+            self.fade_t += 1
+            t = min(1.0, self.fade_t / self.fade_dur)
+            self.fade = 1.0 - t * t
             self.win.queue_draw()
-            if self.fade >= 1.0:
+            if t >= 1.0:
+                os.unlink(PID)
+                Gtk.main_quit()
+            return True
+        if self.fade_anim == 1:
+            self.fade_t += 1
+            t = min(1.0, self.fade_t / self.fade_dur)
+            self.fade = t * (2.0 - t)
+            self.win.queue_draw()
+            if t >= 1.0:
+                self.fade = 1.0
                 self.ready = True
+                self.fade_anim = 0
                 return False
             return True
         return False
@@ -203,7 +210,8 @@ class LockScreen:
         )
         if proc.returncode == 0:
             self.ready = False
-            self.closing = True
+            self.fade_anim = -1
+            self.fade_t = 0
             GLib.timeout_add(16, self.anim_tick)
         else:
             self.fail.set_markup('<span foreground="#ff4444">NO</span>')
