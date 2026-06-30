@@ -1,0 +1,39 @@
+@import url("../../.cache/wal/colors-waybar.css");
+
+* {
+  font-size: 15px;
+  font-family: "CodeNewRoman Nerd Font Propo";
+}
+window#waybar {
+  all: unset;
+}
+.modules-center {
+  padding: 0;
+  margin: 0;
+}
+#workspaces {
+  padding: 0px 5px;
+}
+#workspaces button {
+  all: unset;
+  margin: 0px 3px;
+  padding: 0px 2px;
+  color: rgba(0, 0, 0, 0);
+  background: alpha(@foreground, 0.15);
+  border-radius: 50%;
+  transition: all 0.3s;
+  min-width: 4px;
+  min-height: 4px;
+  font-size: 0;
+}
+#workspaces button:hover {
+  background: alpha(@foreground, 0.3);
+}
+#workspaces button.active {
+  background: @foreground;
+  min-width: 20px;
+  border-radius: 2px;
+}
+#workspaces button.empty {
+  background: alpha(@foreground, 0.08);
+}

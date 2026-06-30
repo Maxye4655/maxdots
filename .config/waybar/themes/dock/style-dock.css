@@ -1,0 +1,65 @@
+@import url("../../.cache/wal/colors-waybar.css");
+
+* {
+  font-size: 14px;
+  font-family: "CodeNewRoman Nerd Font Propo";
+}
+window#waybar {
+  all: unset;
+}
+.modules-left {
+  background: alpha(@background, 0.7);
+  border-radius: 16px;
+  padding: 6px 12px;
+  margin: 0;
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.4);
+}
+.modules-center {
+  background: alpha(@background, 0.7);
+  border-radius: 16px;
+  padding: 6px 16px;
+  margin: 0;
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.4);
+}
+.modules-right {
+  background: alpha(@background, 0.7);
+  border-radius: 16px;
+  padding: 6px 10px;
+  margin: 0;
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.4);
+}
+tooltip {
+  background: @background;
+  color: @color7;
+}
+#clock {
+  color: @color7;
+  transition: all 0.3s ease;
+}
+#workspaces button {
+  all: unset;
+  margin: 0px 4px;
+  padding: 0px 2px;
+  color: rgba(0, 0, 0, 0);
+  background: alpha(@foreground, 0.25);
+  border-radius: 50%;
+  transition: all 0.3s;
+  min-width: 10px;
+  min-height: 10px;
+  font-size: 0;
+}
+#workspaces button:hover {
+  background: alpha(@foreground, 0.5);
+}
+#workspaces button.active {
+  background: @color9;
+}
+#workspaces button.empty {
+  background: alpha(@foreground, 0.1);
+}
+#tray {
+  padding: 0;
+}
+#tray menu * {
+  padding: 0px 5px;
+}

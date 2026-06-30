@@ -27,6 +27,26 @@ main() {
         cat $THEMES/zen/style-zen.css > $STYLECSS
         cat $THEMES/zen/config-zen > $CONFIG
         pkill waybar && waybar
+    elif [[ "$selected_wallpaper" == "$ASSETS/removed.png" ]]; then
+        cat $THEMES/removed/style-removed.css > $STYLECSS
+        cat $THEMES/removed/config-removed > $CONFIG
+        pkill waybar && waybar
+    elif [[ "$selected_wallpaper" == "$ASSETS/void.png" ]]; then
+        cat $THEMES/void/style-void.css > $STYLECSS
+        cat $THEMES/void/config-void > $CONFIG
+        pkill waybar && waybar
+    elif [[ "$selected_wallpaper" == "$ASSETS/bottom.png" ]]; then
+        cat $THEMES/bottom/style-bottom.css > $STYLECSS
+        cat $THEMES/bottom/config-bottom > $CONFIG
+        pkill waybar && waybar
+    elif [[ "$selected_wallpaper" == "$ASSETS/dock.png" ]]; then
+        cat $THEMES/dock/style-dock.css > $STYLECSS
+        cat $THEMES/dock/config-dock > $CONFIG
+        pkill waybar && waybar
+    elif [[ "$selected_wallpaper" == "$ASSETS/flat.png" ]]; then
+        cat $THEMES/flat/style-flat.css > $STYLECSS
+        cat $THEMES/flat/config-flat > $CONFIG
+        pkill waybar && waybar
     fi
 
 }

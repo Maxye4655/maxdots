@@ -1,0 +1,110 @@
+@import url("../../.cache/wal/colors-waybar.css");
+
+* {
+  font-size: 14px;
+  font-family: "CodeNewRoman Nerd Font Propo";
+}
+window#waybar {
+  background: alpha(@background, 0.85);
+  border-bottom: 1px solid alpha(@foreground, 0.1);
+}
+.modules-left {
+  padding: 0 8px;
+}
+.modules-center {
+  padding: 0;
+}
+.modules-right {
+  padding: 0 8px;
+}
+tooltip {
+  background: @background;
+  color: @color7;
+  border: 1px solid alpha(@foreground, 0.15);
+  border-radius: 0;
+}
+#clock,
+#custom-pacman,
+#custom-notification,
+#bluetooth,
+#network,
+#battery,
+#cpu,
+#memory,
+#temperature {
+  padding: 4px 8px;
+  transition: all 0.2s ease;
+  color: @color7;
+}
+#clock:hover,
+#custom-pacman:hover,
+#custom-notification:hover,
+#bluetooth:hover,
+#network:hover,
+#battery:hover,
+#cpu:hover,
+#memory:hover,
+#temperature:hover {
+  background: alpha(@color9, 0.12);
+  color: @color9;
+}
+#workspaces {
+  padding: 0;
+}
+#workspaces button {
+  all: unset;
+  padding: 4px 8px;
+  color: alpha(@color9, 0.35);
+  transition: all 0.2s ease;
+  border-bottom: 2px solid transparent;
+}
+#workspaces button:hover {
+  color: @color9;
+  background: alpha(@color9, 0.08);
+}
+#workspaces button.active {
+  color: @color9;
+  border-bottom: 2px solid @color9;
+}
+#workspaces button.empty {
+  color: alpha(@color9, 0.15);
+}
+#battery.charging {
+  color: #26a65b;
+}
+#battery.warning:not(.charging) {
+  color: #ffbe61;
+}
+#battery.critical:not(.charging) {
+  color: #f53c3c;
+  animation-name: blink;
+  animation-duration: 0.5s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+#group-expand {
+  padding: 0px 5px;
+}
+#custom-expand {
+  padding: 0px 5px;
+  color: alpha(@foreground, 0.2);
+}
+#custom-expand:hover {
+  color: alpha(@foreground, 0.5);
+}
+#custom-colorpicker {
+  padding: 0px 5px;
+}
+#custom-endpoint {
+  color: transparent;
+}
+#tray {
+  padding: 0px 5px;
+}
+#tray menu * {
+  padding: 0px 5px;
+}
+#tray menu separator {
+  padding: 0px 5px;
+}
