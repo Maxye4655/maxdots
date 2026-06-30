@@ -24,7 +24,7 @@
 - **hypridle** — auto-idle with screen dimming, lock, and dpms timeout chain
 - **cava** — terminal audio visualizer with custom shaders
 - **drip** — custom `~/.local/bin/drip` script: realistic human text typer for wayland with configurable wpm, typos, and burst pauses
-- **keybinds** — super key as main modifier; quick access to browser, terminal, file manager, spotify; media keys with swayosd overlays; `Super+Shift+S` region screenshot, `Print` window, `Ctrl+Print` region, `Alt+Print` active output
+- **keybinds** — super key as main modifier; quick access to browser, terminal, file manager, spotify; media keys with swayosd overlays; `Super+Shift+S` region screenshot with swappy annotation, `Print` window, `Ctrl+Print` region, `Alt+Print` active output
 - **wallpaper system** — 48 wallpapers included; cycle with `Super+\``, picker GUI with `Super+Alt+\``, pywal auto-generates colors for hyprland, kitty, cava, and swaync
 
 ## screenshots
@@ -54,6 +54,7 @@
 | `swaync`      | notification center           |
 | `swayosd-git` | on-screen display overlays    |
 | `hyprshot`    | screenshot utility            |
+| `swappy`      | screenshot annotation editor  |
 
 ### shell & tools
 
@@ -195,6 +196,7 @@ cp -a ~/maxdots/wallpapers ~/wallpapers
 | `.config/nwg-look/`        | gtk appearance settings                                 |
 | `.config/waypaper/`        | wallpaper manager settings                              |
 | `.local/bin/drip`          | realistic text typer script                             |
+| `.local/bin/swappy`        | screenshot annotation editor                            |
 | `wallpapers/cycle/`        | 48 wallpapers with pywal color generation               |
 
 ## known issues
