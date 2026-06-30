@@ -35,8 +35,8 @@ capture_ready = False
 
 def capture():
     subprocess.run(["grim", "-o", "eDP-1", TMP], capture_output=True)
-    subprocess.run(["magick", TMP, "-resize", "25%", "-resize", "400%",
-                    "-brightness-contrast", "-30x0", TMP_BLUR], capture_output=True)
+    subprocess.run(["magick", TMP, "-resize", "50%", "-blur", "0x4",
+                    "-resize", "200%", TMP_BLUR], capture_output=True)
     global capture_ready
     capture_ready = True
 
@@ -50,6 +50,9 @@ class LockScreen:
         self.chars = []
         self.raw = None
         self.blur = None
+        self.fade = 0.0
+        self.closing = False
+        self.ready = False
 
         if os.path.exists(TMP_BLUR):
             try:
@@ -93,9 +96,29 @@ class LockScreen:
 
         self.win.show_all()
 
+        GLib.timeout_add(16, self.anim_tick)
+        GLib.timeout_add(TICK_MS, self.tick)
+
         if need_fresh:
             GLib.timeout_add(50, self.poll_raw)
-        GLib.timeout_add(TICK_MS, self.tick)
+
+    def anim_tick(self):
+        if self.closing:
+            if self.fade > 0:
+                self.fade = max(0, self.fade - 0.10)
+                self.win.queue_draw()
+                return True
+            os.unlink(PID)
+            Gtk.main_quit()
+            return False
+        if self.fade < 1.0:
+            self.fade = min(1.0, self.fade + 0.08)
+            self.win.queue_draw()
+            if self.fade >= 1.0:
+                self.ready = True
+                return False
+            return True
+        return False
 
     def poll_raw(self):
         if capture_ready and os.path.exists(TMP):
@@ -108,19 +131,25 @@ class LockScreen:
         return True
 
     def on_draw(self, win, cr):
-        if self.raw:
-            cr.save()
-            cr.scale(0.25, 0.25)
-            Gdk.cairo_set_source_pixbuf(cr, self.raw, 0, 0)
+        cr.set_source_rgb(0.05, 0.05, 0.05)
+        cr.paint()
+
+        pix = self.raw or self.blur
+        if pix and self.fade > 0:
+            if self.raw:
+                cr.save()
+                cr.scale(0.5, 0.5)
+                Gdk.cairo_set_source_pixbuf(cr, self.raw, 0, 0)
+                cr.paint()
+                cr.restore()
+            else:
+                Gdk.cairo_set_source_pixbuf(cr, self.blur, 0, 0)
+                cr.paint()
+            cr.set_source_rgba(0, 0, 0, 0.25)
             cr.paint()
-            cr.restore()
-            cr.set_source_rgba(0, 0, 0, 0.3)
-            cr.paint()
-        elif self.blur:
-            Gdk.cairo_set_source_pixbuf(cr, self.blur, 0, 0)
-            cr.paint()
-        else:
-            cr.set_source_rgb(0.05, 0.05, 0.05)
+
+        if self.fade < 1.0:
+            cr.set_source_rgba(0, 0, 0, 1.0 - self.fade)
             cr.paint()
 
     def tick(self):
@@ -151,16 +180,19 @@ class LockScreen:
             timeout=5,
         )
         if proc.returncode == 0:
-            os.unlink(PID)
-            Gtk.main_quit()
+            self.ready = False
+            self.closing = True
+            GLib.timeout_add(16, self.anim_tick)
         else:
-            self.fail.set_markup('<span alpha="ffff" foreground="#ff4444">NO</span>')
+            self.fail.set_markup('<span foreground="#ff4444">NO</span>')
             self.pwd = ""
             self.chars = []
             self.label.set_text("")
             GLib.timeout_add(800, lambda: self.fail.set_text("") or True)
 
     def on_key(self, win, event):
+        if not self.ready:
+            return
         key = event.keyval
         if key in (Gdk.KEY_Return, Gdk.KEY_KP_Enter):
             self.authenticate()
