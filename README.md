@@ -22,10 +22,10 @@
 - **wlogout** — themed logout/lock/shutdown/reboot screen with custom icons
 - **hyprlock** — dual-monitor lockscreen with wallpaper background, blur, clock, date, and pin input
 - **hypridle** — auto-idle with screen dimming, lock, and dpms timeout chain
-- **wallpaper system** — pywal-based color generation with cycle-wallpaper.sh (next), wallpaper-gui.py (picker), and wal-post.sh (post-generation hooks)
 - **cava** — terminal audio visualizer with custom shaders
 - **drip** — custom `~/.local/bin/drip` script: realistic human text typer for wayland with configurable wpm, typos, and burst pauses
-- **keybinds** — super key as main modifier; quick access to browser, terminal, file manager, spotify; media keys with swayosd overlays; screenshot binds via hyprshot
+- **keybinds** — super key as main modifier; quick access to browser, terminal, file manager, spotify; media keys with swayosd overlays; `Super+Shift+S` region screenshot, `Print` window, `Ctrl+Print` region, `Alt+Print` active output
+- **wallpaper system** — 48 wallpapers included; cycle with `Super+\``, picker GUI with `Super+Alt+\``, pywal auto-generates colors for hyprland, kitty, cava, and swaync
 
 ## screenshots
 
@@ -57,21 +57,23 @@
 
 ### shell & tools
 
-| package        | purpose                               |
-| -------------- | ------------------------------------- |
-| `starship`     | prompt                                |
-| `zoxide`       | smart cd                              |
-| `fzf`          | fuzzy finder                          |
-| `fastfetch`    | system info on terminal start         |
-| `bottom`       | system monitor (top/htop replacement) |
-| `htop`         | process viewer                        |
-| `cava`         | audio visualizer                      |
-| `fuzzel`       | lightweight launcher                  |
-| `thunar`       | file manager                          |
-| `waypaper`     | wallpaper manager (gui)               |
-| `wtype`        | wayland keyboard input (used by drip) |
-| `python`       | wallpaper-gui.py dependency           |
-| `wl-clipboard` | clipboard utils (used by drip)        |
+| package        | purpose                                 |
+| -------------- | --------------------------------------- |
+| `starship`     | prompt                                  |
+| `zoxide`       | smart cd                                |
+| `fzf`          | fuzzy finder                            |
+| `fastfetch`    | system info on terminal start           |
+| `bottom`       | system monitor (top/htop replacement)   |
+| `htop`         | process viewer                          |
+| `cava`         | audio visualizer                        |
+| `fuzzel`       | lightweight launcher                    |
+| `thunar`       | file manager                            |
+| `waypaper`     | wallpaper manager (gui)                 |
+| `wtype`        | wayland keyboard input (used by drip)   |
+| `python`       | wallpaper-gui.py dependency             |
+| `wl-clipboard` | clipboard utils (used by drip)          |
+| `imagemagick`  | thumbnail generation (wallpaper-gui)    |
+| `awww`         | wallpaper setter (used by cycle script) |
 
 ### fonts
 
@@ -103,6 +105,32 @@ colors are generated from wallpaper via **pywal** and sourced throughout the con
 - `colors-hyprland` sourced in hyprland.conf, hyprlock.conf, hypridle.conf
 - gtk-3.0 and gtk-4.0 use matching css variable overrides
 
+## wallpapers
+
+48 wallpapers included in `wallpapers/cycle/`. After cloning, symlink so the scripts can find them:
+
+```bash
+ln -sf ~/maxdots/wallpapers ~/wallpapers
+```
+
+| keybind        | action                      |
+| -------------- | --------------------------- |
+| `Super+\``     | cycle to a random wallpaper |
+| `Super+Alt+\`` | open wallpaper picker GUI   |
+
+The picker shows thumbnails of all wallpapers — click one to set it. On any change, `wal-post.sh` generates a pywal colorscheme and updates kitty, cava, swaync, and gtk themes to match.
+
+### gallery
+
+|                                                          |                                                    |                                                        |
+| -------------------------------------------------------- | -------------------------------------------------- | ------------------------------------------------------ |
+| ![aurora-night](wallpapers/cycle/aurora-night.jpg)       | ![climber-01](wallpapers/cycle/climber-01.jpg)     | ![climber-02](wallpapers/cycle/climber-02.jpg)         |
+| ![climber-03](wallpapers/cycle/climber-03.jpg)           | ![climber-04](wallpapers/cycle/climber-04.jpg)     | ![climber-05](wallpapers/cycle/climber-05.jpg)         |
+| ![climber-06](wallpapers/cycle/climber-06.jpg)           | ![climber-07](wallpapers/cycle/climber-07.jpg)     | ![climber-08](wallpapers/cycle/climber-08.jpg)         |
+| ![cyberpunk-03](wallpapers/cycle/cyberpunk-03.jpg)       | ![dark-cottage](wallpapers/cycle/dark-cottage.jpg) | ![misty-pines](wallpapers/cycle/misty-pines.jpg)       |
+| ![moody-forest](wallpapers/cycle/moody-forest.jpg)       | ![punpun](wallpapers/cycle/punpun.png)             | ![punpun-texture](wallpapers/cycle/punpun-texture.png) |
+| ![punpun-triangle](wallpapers/cycle/punpun-triangle.jpg) | ![punpun-urban](wallpapers/cycle/punpun-urban.png) |                                                        |
+
 ## installation
 
 ```bash
@@ -114,6 +142,7 @@ git clone https://github.com/Maxye4655/maxdots.git ~/maxdots
 ```bash
 sudo pacman -S stow
 stow -t ~ -d ~/maxdots .
+ln -sf ~/maxdots/wallpapers ~/wallpapers
 ```
 
 ### option 2 — manual symlinks
@@ -128,6 +157,7 @@ for d in .config/*/; do
 done
 
 ln -sf ~/maxdots/.local/bin/drip ~/.local/bin/drip
+ln -sf ~/maxdots/wallpapers ~/wallpapers
 ```
 
 ### option 3 — copy (no symlinks)
@@ -136,6 +166,7 @@ ln -sf ~/maxdots/.local/bin/drip ~/.local/bin/drip
 cp -a ~/maxdots/.bashrc ~/maxdots/.bash_profile ~/maxdots/.gitconfig ~/
 cp -a ~/maxdots/.config/* ~/.config/
 cp -a ~/maxdots/.local/bin/* ~/.local/bin/
+cp -a ~/maxdots/wallpapers ~/wallpapers
 ```
 
 ## contents
@@ -164,6 +195,7 @@ cp -a ~/maxdots/.local/bin/* ~/.local/bin/
 | `.config/nwg-look/`        | gtk appearance settings                                 |
 | `.config/waypaper/`        | wallpaper manager settings                              |
 | `.local/bin/drip`          | realistic text typer script                             |
+| `wallpapers/cycle/`        | 48 wallpapers with pywal color generation               |
 
 ## known issues
 
