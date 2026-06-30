@@ -1,0 +1,78 @@
+@import url("/home/max/.cache/wal/colors-waybar.css");
+
+@define-color accent @color4;
+@define-color accent-bg alpha(@color4, 0.2);
+@define-color glass alpha(@background, 0.35);
+@define-color glass-hover alpha(@background, 0.2);
+@define-color border-sub alpha(@foreground, 0.07);
+@define-color border-accent alpha(@color4, 0.35);
+
+* {
+  all: unset;
+  font-family: "CodeNewRoman Nerd Font Mono", monospace;
+  font-size: 18px;
+}
+
+window {
+  background-color: transparent;
+  border-radius: 24px;
+}
+
+#outer-box {
+  background-color: @glass;
+  border: 1px solid @border-sub;
+  border-radius: 24px;
+}
+
+#input {
+  background-color: transparent;
+  border-bottom: 1px solid @border-sub;
+  border-radius: 24px 24px 0 0;
+  padding: 20px 24px 16px;
+  color: @foreground;
+}
+
+#input image {
+  color: @accent;
+  padding-right: 12px;
+}
+
+#scroll {
+  padding: 8px;
+}
+
+#inner-box {
+  padding: 0;
+}
+
+#entry {
+  border: 1px solid transparent;
+  border-radius: 14px;
+  margin: 2px 0;
+  padding: 10px 14px;
+  background-color: transparent;
+}
+
+#entry:selected {
+  border: 1px solid @border-accent;
+  background-color: @accent-bg;
+  border-radius: 14px;
+}
+
+#entry:drop(active) {
+  background-color: @accent-bg;
+  border: 1px solid @border-accent;
+}
+
+#text {
+  color: @foreground;
+  margin: 0 0 0 10px;
+}
+
+#text:selected {
+  color: @foreground;
+}
+
+#img {
+  padding: 0;
+}

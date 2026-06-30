@@ -1,0 +1,276 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+BASE_WPM=80
+VARIANCE=30
+TYPOS=false
+PAUSE=5
+IM=false
+DURATION=""
+SRC=""
+INPUT=""
+
+die()  { printf "\033[31m✗\033[m %s\n" "$*" >&2; exit 1; }
+
+wcall() { "$@" 2>/dev/null || true; }
+
+cleanup() { printf "\033[?25h\033[m" 2>/dev/null || true; }
+trap cleanup EXIT INT TERM
+
+now() { date +%s; }
+
+parse_dur() {
+  local v="$1"
+  case "$v" in
+    *m) echo $(( ${v%m} * 60 )) ;;
+    *h) echo $(( ${v%h} * 3600 )) ;;
+    *d) echo $(( ${v%d} * 86400 )) ;;
+    *s) echo "${v%s}" ;;
+    *)  echo "$v" ;;
+  esac
+}
+
+fmt_dur() {
+  local s=$1 h m
+  h=$(( s / 3600 )); s=$(( s % 3600 ))
+  m=$(( s / 60 )); s=$(( s % 60 ))
+  [ "$h" -gt 0 ] && printf "%dh " "$h"
+  [ "$m" -gt 0 ] && printf "%dm " "$m"
+  printf "%ds" "$s"
+}
+
+rdelay() {
+  local base=$1 var=$2 j=0
+  for _ in {1..4}; do j=$(( RANDOM % (var * 2 + 1) - var )); done
+  local ms=$(( base + j ))
+  [ "$ms" -lt 15 ] && ms=15
+  echo "$ms"
+}
+
+keyname() {
+  case "$1" in
+    " ")  echo "Space" ;;
+    $'\n') echo "Return" ;;
+    $'\t') echo "Tab" ;;
+    ".") echo "period" ;;    ",") echo "comma" ;;
+    ":") echo "colon" ;;     ";") echo "semicolon" ;;
+    "!") echo "exclam" ;;    "?") echo "question" ;;
+    "@") echo "at" ;;        "#") echo "numbersign" ;;
+    "$") echo "dollar" ;;    "%") echo "percent" ;;
+    "^") echo "asciicircum" ;; "&") echo "ampersand" ;;
+    "*") echo "asterisk" ;;  "(") echo "parenleft" ;;
+    ")") echo "parenright" ;; "-") echo "minus" ;;
+    "_") echo "underscore" ;; "=") echo "equal" ;;
+    "+") echo "plus" ;;      "[") echo "bracketleft" ;;
+    "]") echo "bracketright" ;; "{") echo "braceleft" ;;
+    "}") echo "braceright" ;; '"') echo "quotedbl" ;;
+    "'") echo "apostrophe" ;; "/") echo "slash" ;;
+    "\\") echo "backslash" ;; "|") echo "bar" ;;
+    "<") echo "less" ;;      ">") echo "greater" ;;
+    '`') echo "grave" ;;     "~") echo "asciitilde" ;;
+    "½") echo "onehalf" ;;   "€") echo "EuroSign" ;;
+    *)
+      local ch="$1" code; printf -v code '%d' "'$ch"
+      if [ "$code" -ge 32 ] && [ "$code" -le 126 ]; then echo "$ch"
+      else echo ""
+      fi
+      ;;
+  esac
+}
+
+typist() {
+  local t="$1" w=$2 v=$3 y=$4 im=$5 dur=$6
+  local b=$(( 60000 / (w * 5) ))
+  local nl=$'\n' tb=$'\t'
+  local total=${#t}
+  local start; start=$(now)
+  local burst_start=$start
+  local burst_max=$(( RANDOM % 30 + 20 ))
+  local pidx=0
+  local phase="Writing"
+  local phases=("Writing" "Continuing" "Re-reading" "Polishing")
+
+  for (( i=0; i<total; i++ )); do
+    local c="${t:$i:1}" m; m=$(rdelay "$b" "$v")
+    local now_s; now_s=$(now)
+    local el=$(( now_s - start ))
+    local burst_el=$(( now_s - burst_start ))
+
+    case "$c" in
+      "."|"!"|"?"|":"|";") m=$(( m + 180 )) ;;
+      ",")       m=$(( m + 80 ))  ;;
+      "$nl")     m=$(( m + 300 )) ;;
+      "$tb")     m=$(( m + 150 )) ;;
+      " ")       m=$(( m + 15 ))  ;;
+    esac
+
+    # Burst pause (only in duration mode)
+    if [ -n "$dur" ] && [ "$burst_el" -ge "$burst_max" ]; then
+      if [ "$i" -lt "$(( total - 1 ))" ]; then
+        local rem=$(( (total - i) * el / (i + 1) ))
+        local bp=$(( RANDOM % 15 + 5 ))
+        [ "$bp" -gt "$(( rem / 4 ))" ] && bp=$(( rem / 4 ))
+        [ "$bp" -lt 2 ] && bp=2
+        printf "\033[2K\r\033[36m  ✎\033[m %s \033[90m%s\033[m ︎\033[33m⏸ pausing %ds\033[m\n" "$phase" "$(fmt_dur $rem)" "$bp"
+        sleep "$bp"
+        burst_start=$(now)
+        burst_max=$(( RANDOM % 30 + 20 ))
+      fi
+    fi
+
+    # Paragraph pause
+    if [ "$c" = "$nl" ] && [ "$i" -lt "$(( total - 1 ))" ]; then
+      local rem=$(( (total - i) * el / (i + 1) ))
+      local pp=3
+      if [ -n "$dur" ]; then
+        pp=$(( RANDOM % 25 + 8 ))
+        [ "$pp" -gt "$(( rem / 3 ))" ] && pp=$(( rem / 3 ))
+        [ "$pp" -lt 3 ] && pp=3
+      fi
+      printf "\033[2K\r\033[36m  ✎\033[m %s \033[90m%s\033[m  \033[33m¶ new paragraph...\033[m\n" "$phase" "$(fmt_dur $rem)"
+      sleep "$pp"
+      pidx=$(( pidx + 1 ))
+      [ "$pidx" -lt "${#phases[@]}" ] && phase="${phases[$pidx]}"
+    fi
+
+    # Typo simulation
+    if $y && [ $(( RANDOM % 80 )) -eq 0 ] && [ "$c" != " " ] && [ "$c" != "$nl" ] && [ "$c" != "$tb" ]; then
+      local ww; ww=$(printf "\x$(printf '%02x' $(( RANDOM % 26 + 97 )) )")
+      if $im; then local kn; kn=$(keyname "$ww"); [ -n "$kn" ] && wcall wtype -p "$kn"
+      else wcall wtype "$ww"
+      fi
+      sleep 0.08
+      if $im; then wcall wtype -p "Backspace"
+      else wcall wtype -k Backspace
+      fi
+      sleep 0.06
+    fi
+
+    # Dispatch key
+    if $im; then
+      local kn; kn=$(keyname "$c")
+      [ -n "$kn" ] && wcall wtype -p "$kn"
+    else
+      if [ "$c" = "$nl" ]; then wcall wtype -k Return
+      elif [ "$c" = "$tb" ]; then wcall wtype -k Tab
+      else wcall wtype "$c"
+      fi
+    fi
+
+    # Status bar
+    local pct=$(( (i + 1) * 100 / total ))
+    local rem=$(( (total - i - 1) * el / (i + 1) ))
+    printf "\033[2K\r\033[36m  ✎\033[m %s  \033[90m%d%%  %s remaining\033[m" "$phase" "$pct" "$(fmt_dur $rem)"
+
+    sleep "$(awk "BEGIN { printf \"%.3f\", $m / 1000 }")"
+  done
+}
+
+countdown() {
+  local s=$1
+  printf "\n\033[1;33m  ┌────────────────────────────────────┐\033[m\n"
+  printf "\033[1;33m  │\033[m  \033[1;37mFOCUS THE TARGET TEXT BOX NOW!\033[m      \033[1;33m│\033[m\n"
+  for ((; s>0; s--)); do
+    printf "\033[1;33m  │\033[m  Typing in \033[1;97m%ds\033[m...                    \033[1;33m│\033[m\n" "$s"
+    sleep 1
+    printf "\033[2A"
+  done
+  printf "\033[1;33m  │\033[m  \033[1;32mGO!\033[m                               \033[1;33m│\033[m\n"
+  printf "\033[1;33m  └────────────────────────────────────┘\033[m\n"
+  sleep 0.3
+}
+
+usage() {
+  cat <<EOF
+drip — realistic text typer for Hyprland/Wayland
+
+USAGE:
+  drip                         Type clipboard contents
+  drip <text>                  Type text directly
+  drip -f file                 Type from file
+  drip -d 45m "text"           Type over 45 minutes (bursts + pauses)
+  drip -d 2h -i                Chrome over 2 hours, input-method mode
+  drip -s 60 -t                60 wpm with typos
+
+OPTIONS:
+  -d, --duration TIME  Total duration (e.g., 45m, 2h, 6h, 1d)
+  -s, --speed WPM      Typing speed (default: 80, ignored with -d)
+  -i, --im             Input-method protocol (Chrome/Electron)
+  -t, --typos          Simulate typos and corrections
+  -v, --variance %     Speed variance (default: 30)
+  -p, --pause SEC      Countdown before typing (default: 5)
+  -f, --file FILE      Read from FILE
+  -h, --help           Show this help
+EOF
+  exit 0
+}
+
+main() {
+  command -v wtype >/dev/null 2>&1 || die "wtype not found — install: sudo pacman -S wtype"
+
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      -h|--help) usage ;;
+      -f|--file) shift; SRC=file; INPUT="$1"; shift ;;
+      -s|--speed) shift; BASE_WPM="$1"; shift ;;
+      -i|--im) IM=true; shift ;;
+      -t|--typos) TYPOS=true; shift ;;
+      -v|--variance) shift; VARIANCE="$1"; shift ;;
+      -p|--pause) shift; PAUSE="$1"; shift ;;
+      -d|--duration) shift; DURATION="$1"; shift ;;
+      --) shift; break ;;
+      -*) die "Unknown flag: $1" ;;
+      *) break ;;
+    esac
+  done
+
+  [ $# -gt 0 ] && { INPUT="$*"; SRC=inline; }
+
+  if [ -z "$SRC" ]; then
+    command -v wl-paste >/dev/null 2>&1 || die "wl-paste not found — install: sudo pacman -S wl-clipboard"
+    INPUT="$(wl-paste 2>/dev/null)" || die "Nothing in clipboard."
+    [ -z "$INPUT" ] && die "Clipboard is empty."
+  elif [ "$SRC" = file ]; then
+    [ -f "$INPUT" ] || die "File not found: $INPUT"
+    INPUT="$(cat "$INPUT")"
+  fi
+
+  INPUT="${INPUT//$'\r'}"
+  INPUT="${INPUT//$'\xe2\x80\x82'/$'\x20'}"
+  INPUT="${INPUT//$'\xe2\x80\x83'/$'\x20'}"
+  INPUT="${INPUT//$'\xc2\xa0'/$'\x20'}"
+  INPUT="${INPUT//$'\xe2\x80\x98'/$"'"}"
+  INPUT="${INPUT//$'\xe2\x80\x99'/$"'"}"
+  INPUT="${INPUT//$'\xe2\x80\x9c'/$'"'}"
+  INPUT="${INPUT//$'\xe2\x80\x9d'/$'"'}"
+
+  local nchars=${#INPUT}
+  local nwords=$(( nchars / 5 ))
+  [ "$nwords" -lt 1 ] && nwords=1
+
+  # Duration mode: calculate WPM from total duration
+  if [ -n "$DURATION" ]; then
+    local dur_s; dur_s=$(parse_dur "$DURATION")
+    local est_wpm=$(( nwords * 60 / dur_s ))
+    # Aim slightly faster to account for pause time (bursts eat ~15%)
+    BASE_WPM=$(( est_wpm * 120 / 100 ))
+    [ "$BASE_WPM" -lt 15 ] && BASE_WPM=15
+  fi
+
+  printf "\033[?25l\033[2J\033[H"
+  printf "\033[1;36m  drip\033[m  —  %d words" "$nwords"
+  if [ -n "$DURATION" ]; then
+    local dur_s; dur_s=$(parse_dur "$DURATION")
+    printf " over \033[1m%s\033[m" "$(fmt_dur $dur_s)"
+  fi
+  printf " at ~%d wpm\n" "$BASE_WPM"
+  $TYPOS && printf "\033[33m  typos on\033[m\n"
+  $IM && printf "\033[36m  input-method mode\033[m\n"
+
+  countdown "$PAUSE"
+  typist "$INPUT" "$BASE_WPM" "$VARIANCE" "$TYPOS" "$IM" "$DURATION"
+
+  printf "\033[2K\r\033[32m✓\033[m Done. \033[90m%d chars\033[m\n" "$nchars"
+}
+
+main "$@"
