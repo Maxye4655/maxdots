@@ -3,7 +3,7 @@ import subprocess, os, sys, signal, time, random, threading
 import gi
 gi.require_version("Gtk", "3.0")
 gi.require_version("Gdk", "3.0")
-from gi.repository import Gtk, Gdk, GLib, GdkPixbuf
+from gi.repository import Gtk, Gdk, GLib, GdkPixbuf, cairo
 
 PID = "/tmp/lock.pid"
 if os.path.exists(PID):
@@ -48,21 +48,26 @@ if os.path.exists(WAL):
     except Exception:
         pass
 
+def blur_image(src, w, h):
+    s = max(w / src.get_width(), h / src.get_height())
+    sw = int(src.get_width() * s)
+    sh = int(src.get_height() * s)
+    scaled = src.scale_simple(sw, sh, GdkPixbuf.InterpType.BILINEAR)
+    ox = (sw - w) // 2
+    oy = (sh - h) // 2
+    full = GdkPixbuf.Pixbuf.new_subpixbuf(scaled, ox, oy, w, h)
+    bw = w // 6
+    bh = h // 6
+    return full.scale_simple(bw, bh, GdkPixbuf.InterpType.BILINEAR)
+
 class LockScreen:
     def __init__(self):
         self.pwd = ""
         self.chars = []
-        self.raw = None
-        self.wall = None
+        self.bg = None
         self.fade = 0.0
         self.closing = False
         self.ready = False
-
-        if WALL:
-            try:
-                self.wall = GdkPixbuf.Pixbuf.new_from_file(WALL)
-            except Exception:
-                pass
 
         css = b"""
         label {
@@ -84,6 +89,7 @@ class LockScreen:
         self.win.set_app_paintable(True)
         self.win.connect("draw", self.on_draw)
         self.win.connect("key-press-event", self.on_key)
+        self.win.connect("realize", self.on_realize)
 
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         box.set_halign(Gtk.Align.CENTER)
@@ -103,6 +109,18 @@ class LockScreen:
         GLib.timeout_add(16, self.anim_tick)
         GLib.timeout_add(TICK_MS, self.tick)
         GLib.timeout_add(50, self.poll_raw)
+
+    def on_realize(self, win):
+        if not WALL:
+            return
+        try:
+            pix = GdkPixbuf.Pixbuf.new_from_file(WALL)
+            w = self.win.get_allocated_width()
+            h = self.win.get_allocated_height()
+            if w and h:
+                self.bg = blur_image(pix, w, h)
+        except Exception:
+            pass
 
     def anim_tick(self):
         if self.closing:
@@ -125,8 +143,12 @@ class LockScreen:
     def poll_raw(self):
         if capture_ready and os.path.exists(TMP):
             try:
-                self.raw = GdkPixbuf.Pixbuf.new_from_file(TMP)
-                self.win.queue_draw()
+                w = self.win.get_allocated_width()
+                h = self.win.get_allocated_height()
+                if w and h:
+                    raw = GdkPixbuf.Pixbuf.new_from_file(TMP)
+                    self.bg = blur_image(raw, w, h)
+                    self.win.queue_draw()
             except Exception:
                 pass
             return False
@@ -136,11 +158,13 @@ class LockScreen:
         cr.set_source_rgb(0.05, 0.05, 0.05)
         cr.paint()
 
-        pix = self.raw or self.wall
-        if pix and self.fade > 0:
+        if self.bg and self.fade > 0:
+            w = self.win.get_allocated_width()
+            h = self.win.get_allocated_height()
             cr.save()
-            cr.scale(0.5, 0.5)
-            Gdk.cairo_set_source_pixbuf(cr, pix, 0, 0)
+            cr.scale(w / self.bg.get_width(), h / self.bg.get_height())
+            Gdk.cairo_set_source_pixbuf(cr, self.bg, 0, 0)
+            cr.get_source().set_filter(cairo.Filter.BILINEAR)
             cr.paint()
             cr.restore()
             cr.set_source_rgba(0, 0, 0, 0.25)
