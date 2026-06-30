@@ -20,7 +20,7 @@
 - **dunst + swaync** — dual notification stack; dunst for lightweight toasts, swaync for a control center with inline replies and 2fa actions
 - **wofi + fuzzel** — two launchers; wofi as primary (with custom styling), fuzzel as lightweight fallback
 - **wlogout** — themed logout/lock/shutdown/reboot screen with custom icons
-- **hyprlock** — dual-monitor lockscreen with wallpaper background, blur, clock, date, and pin input
+- **hyprlock** — minimal blurred lockscreen with invisible input; shows `匿` for each typed character (fades when empty)
 - **hypridle** — auto-idle with screen dimming, lock, and dpms timeout chain
 - **cava** — terminal audio visualizer with custom shaders
 - **drip** — custom `~/.local/bin/drip` script: realistic human text typer for wayland with configurable wpm, typos, and burst pauses
@@ -123,7 +123,7 @@ colors are generated from wallpaper via **pywal** and sourced throughout the con
 | **Super + V**                | toggle floating                        |
 | **Super + P**                | pseudo-tile                            |
 | **Super + F**                | toggle fullscreen                      |
-| **Super + L**                | lock screen (hyprlock)                 |
+| **Super + L**                | lock screen (blurred, type blindly)    |
 | **Super + M**                | exit hyprland                          |
 | **Super + S**                | toggle scratchpad (magic workspace)    |
 | **Super + 1-0**              | switch to workspace 1-10               |
