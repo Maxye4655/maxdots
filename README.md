@@ -180,11 +180,22 @@ The picker shows thumbnails of all wallpapers — click one to set it. On any ch
 
 ## installation
 
+### quick — TUI installer (recommended)
+
+```bash
+git clone https://github.com/Maxye4655/maxdots.git ~/maxdots
+~/maxdots/install.sh
+```
+
+the interactive TUI guides you through packages, configs, wallpapers, and fonts.
+
+### manual
+
 ```bash
 git clone https://github.com/Maxye4655/maxdots.git ~/maxdots
 ```
 
-### option 1 — stow (recommended)
+#### option 1 — stow
 
 ```bash
 sudo pacman -S stow
@@ -192,7 +203,7 @@ stow -t ~ -d ~/maxdots .
 ln -sf ~/maxdots/wallpapers ~/wallpapers
 ```
 
-### option 2 — manual symlinks
+#### option 2 — manual symlinks
 
 ```bash
 for f in .bashrc .bash_profile .gitconfig .gtkrc-2.0; do
@@ -207,7 +218,7 @@ ln -sf ~/maxdots/.local/bin/drip ~/.local/bin/drip
 ln -sf ~/maxdots/wallpapers ~/wallpapers
 ```
 
-### option 3 — copy (no symlinks)
+#### option 3 — copy (no symlinks)
 
 ```bash
 cp -a ~/maxdots/.bashrc ~/maxdots/.bash_profile ~/maxdots/.gitconfig ~/
@@ -244,6 +255,7 @@ cp -a ~/maxdots/wallpapers ~/wallpapers
 | `.local/bin/drip`          | realistic text typer script                               |
 | `.local/bin/lock`          | custom GTK lockscreen with multilingual character display |
 | `.local/bin/swappy`        | screenshot annotation editor                              |
+| `install.sh`               | TUI installer — packages, configs, wallpapers, fonts      |
 | `wallpapers/cycle/`        | 48 wallpapers with pywal color generation                 |
 
 ## known issues
