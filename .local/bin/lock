@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
+import subprocess, os, sys, signal, time, random, threading
 import gi
 gi.require_version("Gtk", "3.0")
 gi.require_version("Gdk", "3.0")
 from gi.repository import Gtk, Gdk, GLib, GdkPixbuf
-import subprocess, os, random, signal, sys, time
 
 PID = "/tmp/lock.pid"
 if os.path.exists(PID):
@@ -29,13 +29,33 @@ TMP = "/tmp/lock-screen.png"
 TMP_BLUR = "/tmp/lock-blur.png"
 FADE_MS = 2000
 TICK_MS = 50
+CACHE_TTL = 30
 
+capture_ready = False
+
+def capture():
+    subprocess.run(["grim", "-o", "eDP-1", TMP], capture_output=True)
+    subprocess.run(["magick", TMP, "-resize", "25%", "-resize", "400%",
+                    "-brightness-contrast", "-30x0", TMP_BLUR], capture_output=True)
+    global capture_ready
+    capture_ready = True
+
+need_fresh = not (os.path.exists(TMP_BLUR) and time.time() - os.path.getmtime(TMP_BLUR) < CACHE_TTL)
+if need_fresh:
+    threading.Thread(target=capture).start()
 
 class LockScreen:
     def __init__(self):
         self.pwd = ""
         self.chars = []
-        self.pixbuf = None
+        self.raw = None
+        self.blur = None
+
+        if os.path.exists(TMP_BLUR):
+            try:
+                self.blur = GdkPixbuf.Pixbuf.new_from_file(TMP_BLUR)
+            except Exception:
+                pass
 
         css = b"""
         label {
@@ -65,7 +85,6 @@ class LockScreen:
 
         self.label = Gtk.Label()
         self.label.set_selectable(False)
-
         self.fail = Gtk.Label()
         self.fail.set_selectable(False)
 
@@ -74,29 +93,35 @@ class LockScreen:
 
         self.win.show_all()
 
-        GLib.idle_add(self.capture)
+        if need_fresh:
+            GLib.timeout_add(50, self.poll_raw)
         GLib.timeout_add(TICK_MS, self.tick)
 
-    def capture(self):
-        ok = subprocess.run(["grim", "-o", "eDP-1", TMP], capture_output=True).returncode == 0
-        if ok:
-            subprocess.run(
-                ["magick", TMP, "-resize", "25%", "-blur", "0x8",
-                 "-resize", "400%", "-brightness-contrast", "-30x0",
-                 TMP_BLUR],
-                capture_output=True,
-            )
-        if os.path.exists(TMP_BLUR):
-            self.pixbuf = GdkPixbuf.Pixbuf.new_from_file(TMP_BLUR)
-            self.win.queue_draw()
-        return False
+    def poll_raw(self):
+        if capture_ready and os.path.exists(TMP):
+            try:
+                self.raw = GdkPixbuf.Pixbuf.new_from_file(TMP)
+                self.win.queue_draw()
+            except Exception:
+                pass
+            return False
+        return True
 
     def on_draw(self, win, cr):
-        if self.pixbuf:
-            Gdk.cairo_set_source_pixbuf(cr, self.pixbuf, 0, 0)
+        if self.raw:
+            cr.save()
+            cr.scale(0.25, 0.25)
+            Gdk.cairo_set_source_pixbuf(cr, self.raw, 0, 0)
+            cr.paint()
+            cr.restore()
+            cr.set_source_rgba(0, 0, 0, 0.3)
+            cr.paint()
+        elif self.blur:
+            Gdk.cairo_set_source_pixbuf(cr, self.blur, 0, 0)
+            cr.paint()
         else:
             cr.set_source_rgb(0.05, 0.05, 0.05)
-        cr.paint()
+            cr.paint()
 
     def tick(self):
         now = time.time()
@@ -164,7 +189,6 @@ class LockScreen:
         if len(self.chars) > 10:
             self.chars.pop(0)
         self.render()
-
 
 if __name__ == "__main__":
     signal.signal(signal.SIGINT, signal.SIG_DFL)
