@@ -1,0 +1,176 @@
+#!/usr/bin/env python3
+import gi
+gi.require_version("Gtk", "3.0")
+gi.require_version("Gdk", "3.0")
+from gi.repository import Gtk, Gdk, GLib, GdkPixbuf
+import subprocess, os, random, signal, sys
+
+CHARS = list(
+    "字文匿秘密密码解锁登录安全保护隐藏"
+    "あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほ"
+    "مرحبا كيف حالك نعم لا شكرا كتاب"
+    "한글은아름다운언어입니다"
+    "приветкакделахорошода"
+    "สวัสดีครับ"
+    "γειασαςευχαριστω"
+    "🔓🔒⚡✨🎯🔑🗝️🛡️"
+)
+
+TMP = "/tmp/lock-screen.png"
+TMP_BLUR = "/tmp/lock-blur.png"
+
+
+class LockScreen:
+    def __init__(self):
+        self.pwd = ""
+        self.shown = ""
+
+        screen = Gdk.Screen.get_default()
+
+        css = b"""
+        window { background: black; }
+        label#char {
+            font-family: "CodeNewRoman Nerd Font Propo";
+            font-size: 52px;
+        }
+        label#fail {
+            font-family: "CodeNewRoman Nerd Font Propo";
+            font-size: 20px;
+            color: #ff4444;
+        }
+        """
+        prov = Gtk.CssProvider()
+        prov.load_from_data(css)
+        Gtk.StyleContext.add_provider_for_screen(
+            screen, prov, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
+        )
+
+        self.win = Gtk.Window(type=Gtk.WindowType.POPUP)
+        self.win.set_app_paintable(True)
+        self.win.set_decorated(False)
+        self.win.set_resizable(False)
+        self.win.fullscreen()
+        self.win.set_keep_above(True)
+        self.win.stick()
+        vis = screen.get_rgba_visual()
+        if vis:
+            self.win.set_visual(vis)
+
+        self.win.connect("draw", self.on_draw)
+        self.win.connect("key-press-event", self.on_key)
+        self.win.connect("destroy", Gtk.main_quit)
+
+        overlay = Gtk.Overlay()
+        self.win.add(overlay)
+
+        self.bg = Gtk.DrawingArea()
+        overlay.add(self.bg)
+
+        fg = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        fg.set_valign(Gtk.Align.CENTER)
+        fg.set_halign(Gtk.Align.CENTER)
+        fg.set_spacing(16)
+
+        self.char_label = Gtk.Label(name="char")
+        self.char_label.set_text("")
+        self.char_label.set_selectable(False)
+
+        self.fail_label = Gtk.Label(name="fail")
+        self.fail_label.set_text("")
+        self.fail_label.set_selectable(False)
+
+        fg.pack_start(self.char_label, False, False, 0)
+        fg.pack_start(self.fail_label, False, False, 0)
+
+        overlay.add_overlay(fg)
+        self.win.show_all()
+
+        self.pixbuf = None
+        self.capture()
+
+    def capture(self):
+        ok = subprocess.run(
+            ["grim", "-o", "eDP-1", TMP],
+            capture_output=True,
+        ).returncode == 0
+        if ok:
+            ok = subprocess.run(
+                [
+                    "magick", TMP,
+                    "-blur", "0x12",
+                    "-brightness-contrast", "-30x0",
+                    TMP_BLUR,
+                ],
+                capture_output=True,
+            ).returncode == 0
+        if ok:
+            self.pixbuf = GdkPixbuf.Pixbuf.new_from_file(TMP_BLUR)
+            self.win.queue_draw()
+
+    def on_draw(self, win, cr):
+        if self.pixbuf:
+            Gdk.cairo_set_source_pixbuf(cr, self.pixbuf, 0, 0)
+            cr.paint()
+        else:
+            cr.set_source_rgba(0.05, 0.05, 0.05, 1)
+            cr.paint()
+
+    def show_char(self):
+        if self.pwd:
+            c = random.choice(CHARS)
+            self.shown = self.shown + c
+            if len(self.shown) > 14:
+                self.shown = self.shown[-14:]
+            self.char_label.set_text(" ".join(self.shown))
+        else:
+            self.shown = ""
+            self.char_label.set_text("")
+
+    def authenticate(self):
+        if not self.pwd:
+            return
+        proc = subprocess.run(
+            ["sudo", "-S", "-k", "true"],
+            input=self.pwd.encode() + b"\n",
+            capture_output=True,
+            timeout=5,
+        )
+        if proc.returncode == 0:
+            Gtk.main_quit()
+        else:
+            self.fail_label.set_text("NO")
+            self.pwd = ""
+            self.shown = ""
+            self.char_label.set_text("")
+            GLib.timeout_add(800, lambda: self.fail_label.set_text("") or True)
+
+    def on_key(self, win, event):
+        key = event.keyval
+        if key in (Gdk.KEY_Escape, Gdk.KEY_Cancel):
+            return
+        if key in (Gdk.KEY_Return, Gdk.KEY_KP_Enter):
+            self.authenticate()
+            return
+        if key == Gdk.KEY_BackSpace:
+            self.pwd = self.pwd[:-1]
+            self.show_char()
+            return
+        if key in (
+            Gdk.KEY_Control_L, Gdk.KEY_Control_R,
+            Gdk.KEY_Shift_L, Gdk.KEY_Shift_R,
+            Gdk.KEY_Alt_L, Gdk.KEY_Alt_R,
+            Gdk.KEY_Super_L, Gdk.KEY_Super_R,
+            Gdk.KEY_Caps_Lock, Gdk.KEY_Tab,
+        ):
+            return
+
+        char = Gdk.keyval_to_unicode(key)
+        if char:
+            self.pwd += chr(char)
+            self.show_char()
+
+
+if __name__ == "__main__":
+    signal.signal(signal.SIGINT, signal.SIG_DFL)
+    LockScreen()
+    Gtk.main()

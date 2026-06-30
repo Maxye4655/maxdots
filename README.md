@@ -20,7 +20,7 @@
 - **dunst + swaync** — dual notification stack; dunst for lightweight toasts, swaync for a control center with inline replies and 2fa actions
 - **wofi + fuzzel** — two launchers; wofi as primary (with custom styling), fuzzel as lightweight fallback
 - **wlogout** — themed logout/lock/shutdown/reboot screen with custom icons
-- **hyprlock** — minimal blurred lockscreen with invisible input; shows `匿` for each typed character (fades when empty)
+- **custom lockscreen** — Python/GTK lockscreen with blurred wallpaper; each keystroke shows a random multilingual character (Chinese, Japanese, Arabic, Korean, Cyrillic, emoji) instead of the actual typed letter
 - **hypridle** — auto-idle with screen dimming, lock, and dpms timeout chain
 - **cava** — terminal audio visualizer with custom shaders
 - **drip** — custom `~/.local/bin/drip` script: realistic human text typer for wayland with configurable wpm, typos, and burst pauses
@@ -57,26 +57,28 @@
 | `swayosd-git` | on-screen display overlays    |
 | `hyprshot`    | screenshot utility            |
 | `swappy`      | screenshot annotation editor  |
+| `grim`        | screen capture (lockscreen)   |
 
 ### shell & tools
 
-| package        | purpose                                 |
-| -------------- | --------------------------------------- |
-| `starship`     | prompt                                  |
-| `zoxide`       | smart cd                                |
-| `fzf`          | fuzzy finder                            |
-| `fastfetch`    | system info on terminal start           |
-| `bottom`       | system monitor (top/htop replacement)   |
-| `htop`         | process viewer                          |
-| `cava`         | audio visualizer                        |
-| `fuzzel`       | lightweight launcher                    |
-| `thunar`       | file manager                            |
-| `waypaper`     | wallpaper manager (gui)                 |
-| `wtype`        | wayland keyboard input (used by drip)   |
-| `python`       | wallpaper-gui.py dependency             |
-| `wl-clipboard` | clipboard utils (used by drip)          |
-| `imagemagick`  | thumbnail generation (wallpaper-gui)    |
-| `awww`         | wallpaper setter (used by cycle script) |
+| package          | purpose                                 |
+| ---------------- | --------------------------------------- |
+| `starship`       | prompt                                  |
+| `zoxide`         | smart cd                                |
+| `fzf`            | fuzzy finder                            |
+| `fastfetch`      | system info on terminal start           |
+| `bottom`         | system monitor (top/htop replacement)   |
+| `htop`           | process viewer                          |
+| `cava`           | audio visualizer                        |
+| `fuzzel`         | lightweight launcher                    |
+| `thunar`         | file manager                            |
+| `waypaper`       | wallpaper manager (gui)                 |
+| `wtype`          | wayland keyboard input (used by drip)   |
+| `python`         | wallpaper-gui.py dependency             |
+| `python-gobject` | GTK bindings for custom lockscreen      |
+| `wl-clipboard`   | clipboard utils (used by drip)          |
+| `imagemagick`    | thumbnail generation (wallpaper-gui)    |
+| `awww`           | wallpaper setter (used by cycle script) |
 
 ### fonts
 
@@ -112,38 +114,38 @@ colors are generated from wallpaper via **pywal** and sourced throughout the con
 
 ## keybinds
 
-| key                          | action                                 |
-| ---------------------------- | -------------------------------------- |
-| **Super + Space**            | app launcher (wofi)                    |
-| **Super + W**                | web browser (chrome)                   |
-| **Super + C**                | spotify                                |
-| **Super + T**                | terminal (kitty)                       |
-| **Super + E**                | file manager (thunar)                  |
-| **Super + Q**                | close window                           |
-| **Super + V**                | toggle floating                        |
-| **Super + P**                | pseudo-tile                            |
-| **Super + F**                | toggle fullscreen                      |
-| **Super + L**                | lock screen (blurred, type blindly)    |
-| **Super + M**                | exit hyprland                          |
-| **Super + S**                | toggle scratchpad (magic workspace)    |
-| **Super + 1-0**              | switch to workspace 1-10               |
-| **Super + Alt + 1-0**        | move window to workspace 1-10          |
-| **Super + Alt + S**          | move window to scratchpad              |
-| **Super + arrows**           | move focus                             |
-| **Alt + arrows**             | move window                            |
-| **Super + \`**               | random wallpaper                       |
-| **Super + Alt + \`**         | wallpaper picker gui                   |
-| **Super + Shift + S**        | region screenshot + swappy annotation  |
-| **Print**                    | capture window                         |
-| **Ctrl + Print**             | capture region                         |
-| **Alt + Print**              | capture active monitor                 |
-| **Alt + Tab**                | logout screen (wlogout)                |
-| **Alt + A**                  | refresh / toggle waybar                |
-| **Alt + B**                  | waybar theme picker                    |
-| **Media keys**               | volume, brightness, playback (swayosd) |
-| **Caps Lock**                | caps-lock indicator (swayosd)          |
-| **Super + mouse drag**       | move window                            |
-| **Super + right mouse drag** | resize window                          |
+| key                          | action                                                             |
+| ---------------------------- | ------------------------------------------------------------------ |
+| **Super + Space**            | app launcher (wofi)                                                |
+| **Super + W**                | web browser (chrome)                                               |
+| **Super + C**                | spotify                                                            |
+| **Super + T**                | terminal (kitty)                                                   |
+| **Super + E**                | file manager (thunar)                                              |
+| **Super + Q**                | close window                                                       |
+| **Super + V**                | toggle floating                                                    |
+| **Super + P**                | pseudo-tile                                                        |
+| **Super + F**                | toggle fullscreen                                                  |
+| **Super + L**                | lock screen (blurred, show random multilingual chars on keystroke) |
+| **Super + M**                | exit hyprland                                                      |
+| **Super + S**                | toggle scratchpad (magic workspace)                                |
+| **Super + 1-0**              | switch to workspace 1-10                                           |
+| **Super + Alt + 1-0**        | move window to workspace 1-10                                      |
+| **Super + Alt + S**          | move window to scratchpad                                          |
+| **Super + arrows**           | move focus                                                         |
+| **Alt + arrows**             | move window                                                        |
+| **Super + \`**               | random wallpaper                                                   |
+| **Super + Alt + \`**         | wallpaper picker gui                                               |
+| **Super + Shift + S**        | region screenshot + swappy annotation                              |
+| **Print**                    | capture window                                                     |
+| **Ctrl + Print**             | capture region                                                     |
+| **Alt + Print**              | capture active monitor                                             |
+| **Alt + Tab**                | logout screen (wlogout)                                            |
+| **Alt + A**                  | refresh / toggle waybar                                            |
+| **Alt + B**                  | waybar theme picker                                                |
+| **Media keys**               | volume, brightness, playback (swayosd)                             |
+| **Caps Lock**                | caps-lock indicator (swayosd)                                      |
+| **Super + mouse drag**       | move window                                                        |
+| **Super + right mouse drag** | resize window                                                      |
 
 ## wallpapers
 
@@ -211,32 +213,33 @@ cp -a ~/maxdots/wallpapers ~/wallpapers
 
 ## contents
 
-| path                       | what                                                    |
-| -------------------------- | ------------------------------------------------------- |
-| `.bashrc`, `.bash_profile` | shell setup — starship, zoxide, fzf, fastfetch          |
-| `.gitconfig`               | git identity & gh credential helper                     |
-| `.config/hypr/`            | hyprland wm config, keybinds, window rules, scripts     |
-| `.config/waybar/`          | status bar with 4 themes, custom scripts                |
-| `.config/kitty/`           | terminal emulator with everforest theme                 |
-| `.config/nvim/`            | neovim — lazy.nvim, lsp, treesitter, telescope, copilot |
-| `.config/dunst/`           | notification daemon config                              |
-| `.config/wofi/`            | app launcher with custom css                            |
-| `.config/wlogout/`         | logout screen with custom icons                         |
-| `.config/swaync/`          | notification center with control center                 |
-| `.config/pypr/`            | hyprland scratchpads (terminal, pulsemixer)             |
-| `.config/fuzzel/`          | lightweight launcher fallback                           |
-| `.config/cava/`            | audio visualizer with shaders & themes                  |
-| `.config/bottom/`          | system monitor config                                   |
-| `.config/htop/`            | process viewer config                                   |
-| `.config/gtk-3.0/`         | gtk3 theme overrides (window decorations, thunar)       |
-| `.config/gtk-4.0/`         | gtk4 theme overrides                                    |
-| `.config/clock-rs/`        | lockscreen clock config                                 |
-| `.config/xsettingsd/`      | gtk settings daemon                                     |
-| `.config/nwg-look/`        | gtk appearance settings                                 |
-| `.config/waypaper/`        | wallpaper manager settings                              |
-| `.local/bin/drip`          | realistic text typer script                             |
-| `.local/bin/swappy`        | screenshot annotation editor                            |
-| `wallpapers/cycle/`        | 48 wallpapers with pywal color generation               |
+| path                       | what                                                      |
+| -------------------------- | --------------------------------------------------------- |
+| `.bashrc`, `.bash_profile` | shell setup — starship, zoxide, fzf, fastfetch            |
+| `.gitconfig`               | git identity & gh credential helper                       |
+| `.config/hypr/`            | hyprland wm config, keybinds, window rules, scripts       |
+| `.config/waybar/`          | status bar with 4 themes, custom scripts                  |
+| `.config/kitty/`           | terminal emulator with everforest theme                   |
+| `.config/nvim/`            | neovim — lazy.nvim, lsp, treesitter, telescope, copilot   |
+| `.config/dunst/`           | notification daemon config                                |
+| `.config/wofi/`            | app launcher with custom css                              |
+| `.config/wlogout/`         | logout screen with custom icons                           |
+| `.config/swaync/`          | notification center with control center                   |
+| `.config/pypr/`            | hyprland scratchpads (terminal, pulsemixer)               |
+| `.config/fuzzel/`          | lightweight launcher fallback                             |
+| `.config/cava/`            | audio visualizer with shaders & themes                    |
+| `.config/bottom/`          | system monitor config                                     |
+| `.config/htop/`            | process viewer config                                     |
+| `.config/gtk-3.0/`         | gtk3 theme overrides (window decorations, thunar)         |
+| `.config/gtk-4.0/`         | gtk4 theme overrides                                      |
+| `.config/clock-rs/`        | lockscreen clock config                                   |
+| `.config/xsettingsd/`      | gtk settings daemon                                       |
+| `.config/nwg-look/`        | gtk appearance settings                                   |
+| `.config/waypaper/`        | wallpaper manager settings                                |
+| `.local/bin/drip`          | realistic text typer script                               |
+| `.local/bin/lock`          | custom GTK lockscreen with multilingual character display |
+| `.local/bin/swappy`        | screenshot annotation editor                              |
+| `wallpapers/cycle/`        | 48 wallpapers with pywal color generation                 |
 
 ## known issues
 
