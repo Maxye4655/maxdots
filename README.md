@@ -14,7 +14,7 @@
 ## features
 
 - **hyprland** — dynamic tiling wm with smooth animations, blur, rounded corners, and pypr scratchpads
-- **waybar** — top status bar with 4 themes (default, experimental, line, zen) switchable via `Alt+B`; modules for workspaces, clock, tray, network, battery, bluetooth, and pacman updates
+- **waybar** — top status bar with 9 themes (default, experimental, line, zen, hidden, dots, bottom, dock, flat) switchable via `Alt+B`; modules for workspaces, clock, tray, network, battery, bluetooth, and pacman updates
 - **kitty** — terminal with everforest dark hard theme and nerd font
 - **neovim** — full IDE setup via lazy.nvim: treesitter, LSP (via mason), telescope, neo-tree, copilot, snacks, and more
 - **dunst + swaync** — dual notification stack; dunst for lightweight toasts, swaync for a control center with inline replies and 2fa actions
@@ -94,16 +94,21 @@ alpha, autopair, cmdline, colorscheme, completions, copilot, copilot-chat, css-c
 
 ## themes
 
-### waybar (4 themes)
+### waybar (9 themes)
 
-| theme            | description                                                           |
-| ---------------- | --------------------------------------------------------------------- |
-| **default**      | clean, minimal — workspaces, clock, tray, network, battery, bluetooth |
-| **experimental** | alternative layout & styling                                          |
-| **line**         | thin line separator style                                             |
-| **zen**          | ultra-minimal, low distraction                                        |
+| theme            | description                                                                  |
+| ---------------- | ---------------------------------------------------------------------------- |
+| **default**      | clean, minimal — workspaces, clock, tray, network, battery, bluetooth        |
+| **experimental** | alternative layout & styling                                                 |
+| **line**         | thin line separator style                                                    |
+| **zen**          | ultra-minimal, low distraction                                               |
+| **hidden**       | completely empty — no modules, no visible bar; waybar runs but shows nothing |
+| **dots**         | extreme minimal — 4px workspace dots at top edge, near-invisible             |
+| **bottom**       | same modules as default but positioned at the bottom of the screen           |
+| **dock**         | macOS-style centered dock at bottom — workspaces, clock, tray; rounded pills |
+| **flat**         | modern flat design — solid bar, sharp corners, underline active workspace    |
 
-switch themes with **`Alt+B`** — opens a wofi picker showing preview images for each theme. click one and waybar restarts with the new look.
+switch themes with **`Alt+B`** — opens a wofi picker listing each theme by name. select one and waybar restarts with the new look.
 
 ### colors
 
@@ -218,7 +223,7 @@ cp -a ~/maxdots/wallpapers ~/wallpapers
 | `.bashrc`, `.bash_profile` | shell setup — starship, zoxide, fzf, fastfetch            |
 | `.gitconfig`               | git identity & gh credential helper                       |
 | `.config/hypr/`            | hyprland wm config, keybinds, window rules, scripts       |
-| `.config/waybar/`          | status bar with 4 themes, custom scripts                  |
+| `.config/waybar/`          | status bar with 9 themes, custom scripts                  |
 | `.config/kitty/`           | terminal emulator with everforest theme                   |
 | `.config/nvim/`            | neovim — lazy.nvim, lsp, treesitter, telescope, copilot   |
 | `.config/dunst/`           | notification daemon config                                |
