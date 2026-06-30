@@ -30,9 +30,11 @@
 ## screenshots
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/screenshots/desktop.png" alt="desktop" width="600">
+  <img src="screenshots/desktop.png" alt="desktop" width="600">
   <br>
-  <em>add a screenshot!</em>
+  <img src="screenshots/desktop-workspace.png" alt="workspace" width="600">
+  <br>
+  <img src="screenshots/widget.png" alt="widget" width="300">
 </p>
 
 ## dependencies
