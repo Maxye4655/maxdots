@@ -110,6 +110,41 @@ colors are generated from wallpaper via **pywal** and sourced throughout the con
 - `colors-hyprland` sourced in hyprland.conf, hyprlock.conf, hypridle.conf
 - gtk-3.0 and gtk-4.0 use matching css variable overrides
 
+## keybinds
+
+| key                          | action                                 |
+| ---------------------------- | -------------------------------------- |
+| **Super + Space**            | app launcher (wofi)                    |
+| **Super + W**                | web browser (chrome)                   |
+| **Super + C**                | spotify                                |
+| **Super + T**                | terminal (kitty)                       |
+| **Super + E**                | file manager (thunar)                  |
+| **Super + Q**                | close window                           |
+| **Super + V**                | toggle floating                        |
+| **Super + P**                | pseudo-tile                            |
+| **Super + F**                | toggle fullscreen                      |
+| **Super + L**                | lock screen (hyprlock)                 |
+| **Super + M**                | exit hyprland                          |
+| **Super + S**                | toggle scratchpad (magic workspace)    |
+| **Super + 1-0**              | switch to workspace 1-10               |
+| **Super + Alt + 1-0**        | move window to workspace 1-10          |
+| **Super + Alt + S**          | move window to scratchpad              |
+| **Super + arrows**           | move focus                             |
+| **Alt + arrows**             | move window                            |
+| **Super + \`**               | random wallpaper                       |
+| **Super + Alt + \`**         | wallpaper picker gui                   |
+| **Super + Shift + S**        | region screenshot + swappy annotation  |
+| **Print**                    | capture window                         |
+| **Ctrl + Print**             | capture region                         |
+| **Alt + Print**              | capture active monitor                 |
+| **Alt + Tab**                | logout screen (wlogout)                |
+| **Alt + A**                  | refresh / toggle waybar                |
+| **Alt + B**                  | waybar theme picker                    |
+| **Media keys**               | volume, brightness, playback (swayosd) |
+| **Caps Lock**                | caps-lock indicator (swayosd)          |
+| **Super + mouse drag**       | move window                            |
+| **Super + right mouse drag** | resize window                          |
+
 ## wallpapers
 
 48 wallpapers included in `wallpapers/cycle/`. After cloning, symlink so the scripts can find them:
