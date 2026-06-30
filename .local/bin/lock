@@ -30,8 +30,6 @@ TMP_BLUR = "/tmp/lock-blur.png"
 FADE_MS = 2000
 TICK_MS = 50
 
-alpha_hex = lambda f: f"{int(max(0, min(1, f)) * 65535):04x}"
-
 
 class LockScreen:
     def __init__(self):
@@ -41,7 +39,7 @@ class LockScreen:
 
         css = b"""
         label {
-            font-family: "CodeNewRoman Nerd Font Propo";
+            font-family: "CodeNewRoman Nerd Font Propo", "WenQuanYi Micro Hei";
             font-size: 52px;
             color: #d0d0d0;
         }
@@ -115,7 +113,7 @@ class LockScreen:
         for c, t in self.chars:
             a = 1.0 - (now - t) / (FADE_MS / 1000)
             a = max(0.05, min(1.0, a))
-            parts.append(f'<span alpha="{alpha_hex(a)}">{c}</span>')
+            parts.append(f'<span foreground="#d0d0d0" alpha="{int(a * 65535)}">{c}</span>')
         self.label.set_markup(" ".join(parts))
 
     def authenticate(self):

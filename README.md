@@ -81,11 +81,12 @@
 
 ### fonts
 
-| font                           | usage            |
-| ------------------------------ | ---------------- |
-| `CodeNewRoman Nerd Font Propo` | lockscreen       |
-| `Hurmit Nerd Font Mono`        | terminal (kitty) |
-| `Bibata-Modern-Ice`            | cursor theme     |
+| font                           | usage                   |
+| ------------------------------ | ----------------------- |
+| `CodeNewRoman Nerd Font Propo` | lockscreen              |
+| `Hurmit Nerd Font Mono`        | terminal (kitty)        |
+| `wqy-microhei`                 | CJK glyphs (lockscreen) |
+| `Bibata-Modern-Ice`            | cursor theme            |
 
 ### nvim plugins
 

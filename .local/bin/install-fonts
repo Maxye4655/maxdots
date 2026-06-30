@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -euo pipefail
+DIR="${XDG_DATA_HOME:-$HOME/.local/share}/fonts"
+mkdir -p "$DIR"
+URL="https://archive.archlinux.org/packages/w/wqy-microhei/wqy-microhei-0.2.0_beta-10-any.pkg.tar.zst"
+echo "Downloading wqy-microhei..."
+curl -L -o /tmp/wqy-microhei.pkg.tar.zst "$URL"
+tar --zstd -xf /tmp/wqy-microhei.pkg.tar.zst -C /tmp/
+cp /tmp/usr/share/fonts/wenquanyi/wqy-microhei/wqy-microhei.ttc "$DIR/"
+fc-cache -f
+rm -f /tmp/wqy-microhei.pkg.tar.zst /tmp/wqy-microhei.pkg.tar.zst
+rm -rf /tmp/usr/share/fonts
+echo "fonts installed"
