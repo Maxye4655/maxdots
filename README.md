@@ -20,7 +20,7 @@
 - **dunst + swaync** — dual notification stack; dunst for lightweight toasts, swaync for a control center with inline replies and 2fa actions
 - **wofi + fuzzel** — two launchers; wofi as primary (with custom styling), fuzzel as lightweight fallback
 - **wlogout** — themed logout/lock/shutdown/reboot screen with custom icons
-- **custom lockscreen** — Python/GTK lockscreen with blurred wallpaper; each keystroke shows a random multilingual character (Chinese, Japanese, Arabic, Korean, Cyrillic, emoji) instead of the actual typed letter
+- **custom lockscreen** — Python/GTK lockscreen with blurred wallpaper; each keystroke shows a random Chinese or Japanese character that fades over 2 seconds. Auto-locks after 1000s idle via hypridle
 - **hypridle** — auto-idle with screen dimming, lock, and dpms timeout chain
 - **cava** — terminal audio visualizer with custom shaders
 - **drip** — custom `~/.local/bin/drip` script: realistic human text typer for wayland with configurable wpm, typos, and burst pauses
@@ -51,8 +51,7 @@
 | `wofi`        | app launcher                  |
 | `wlogout`     | logout screen                 |
 | `pyprland`    | hyprland scratchpads & layout |
-| `hyprlock`    | lockscreen                    |
-| `hypridle`    | idle management               |
+| `hypridle`    | idle management (auto-lock)   |
 | `swaync`      | notification center           |
 | `swayosd-git` | on-screen display overlays    |
 | `hyprshot`    | screenshot utility            |
@@ -114,38 +113,38 @@ colors are generated from wallpaper via **pywal** and sourced throughout the con
 
 ## keybinds
 
-| key                          | action                                                             |
-| ---------------------------- | ------------------------------------------------------------------ |
-| **Super + Space**            | app launcher (wofi)                                                |
-| **Super + W**                | web browser (chrome)                                               |
-| **Super + C**                | spotify                                                            |
-| **Super + T**                | terminal (kitty)                                                   |
-| **Super + E**                | file manager (thunar)                                              |
-| **Super + Q**                | close window                                                       |
-| **Super + V**                | toggle floating                                                    |
-| **Super + P**                | pseudo-tile                                                        |
-| **Super + F**                | toggle fullscreen                                                  |
-| **Super + L**                | lock screen (blurred, show random multilingual chars on keystroke) |
-| **Super + M**                | exit hyprland                                                      |
-| **Super + S**                | toggle scratchpad (magic workspace)                                |
-| **Super + 1-0**              | switch to workspace 1-10                                           |
-| **Super + Alt + 1-0**        | move window to workspace 1-10                                      |
-| **Super + Alt + S**          | move window to scratchpad                                          |
-| **Super + arrows**           | move focus                                                         |
-| **Alt + arrows**             | move window                                                        |
-| **Super + \`**               | random wallpaper                                                   |
-| **Super + Alt + \`**         | wallpaper picker gui                                               |
-| **Super + Shift + S**        | region screenshot + swappy annotation                              |
-| **Print**                    | capture window                                                     |
-| **Ctrl + Print**             | capture region                                                     |
-| **Alt + Print**              | capture active monitor                                             |
-| **Alt + Tab**                | logout screen (wlogout)                                            |
-| **Alt + A**                  | refresh / toggle waybar                                            |
-| **Alt + B**                  | waybar theme picker                                                |
-| **Media keys**               | volume, brightness, playback (swayosd)                             |
-| **Caps Lock**                | caps-lock indicator (swayosd)                                      |
-| **Super + mouse drag**       | move window                                                        |
-| **Super + right mouse drag** | resize window                                                      |
+| key                          | action                                                    |
+| ---------------------------- | --------------------------------------------------------- |
+| **Super + Space**            | app launcher (wofi)                                       |
+| **Super + W**                | web browser (chrome)                                      |
+| **Super + C**                | spotify                                                   |
+| **Super + T**                | terminal (kitty)                                          |
+| **Super + E**                | file manager (thunar)                                     |
+| **Super + Q**                | close window                                              |
+| **Super + V**                | toggle floating                                           |
+| **Super + P**                | pseudo-tile                                               |
+| **Super + F**                | toggle fullscreen                                         |
+| **Super + L**                | lock screen (blurred, show fading CJK chars on keystroke) |
+| **Super + M**                | exit hyprland                                             |
+| **Super + S**                | toggle scratchpad (magic workspace)                       |
+| **Super + 1-0**              | switch to workspace 1-10                                  |
+| **Super + Alt + 1-0**        | move window to workspace 1-10                             |
+| **Super + Alt + S**          | move window to scratchpad                                 |
+| **Super + arrows**           | move focus                                                |
+| **Alt + arrows**             | move window                                               |
+| **Super + \`**               | random wallpaper                                          |
+| **Super + Alt + \`**         | wallpaper picker gui                                      |
+| **Super + Shift + S**        | region screenshot + swappy annotation                     |
+| **Print**                    | capture window                                            |
+| **Ctrl + Print**             | capture region                                            |
+| **Alt + Print**              | capture active monitor                                    |
+| **Alt + Tab**                | logout screen (wlogout)                                   |
+| **Alt + A**                  | refresh / toggle waybar                                   |
+| **Alt + B**                  | waybar theme picker                                       |
+| **Media keys**               | volume, brightness, playback (swayosd)                    |
+| **Caps Lock**                | caps-lock indicator (swayosd)                             |
+| **Super + mouse drag**       | move window                                               |
+| **Super + right mouse drag** | resize window                                             |
 
 ## wallpapers
 
