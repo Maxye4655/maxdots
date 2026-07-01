@@ -5,7 +5,9 @@
   <img src="https://img.shields.io/badge/Editor-Neovim-57A143?style=for-the-badge&logo=neovim" alt="Editor">
 </p>
 
-```
+<div align="center">
+
+````
 ╔═════════════════════════════════════════════════════════════════╗
 ║  ███╗   ███╗ █████╗ ██╗  ██╗██████╗  ██████╗ ████████╗███████╗  ║
 ║  ████╗ ████║██╔══██╗╚██╗██╔╝██╔══██╗██╔═══██╗╚══██╔══╝██╔════╝  ║
@@ -15,7 +17,8 @@
 ║  ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚═════╝  ╚═════╝    ╚═╝   ╚══════╝  ║
 ║        hyprland · waybar · kitty · nvim · and more              ║
 ╚═════════════════════════════════════════════════════════════════╝
-```
+
+</div>
 
 ## features
 
@@ -164,7 +167,7 @@ colors are generated from wallpaper via **pywal** and sourced throughout the con
 
 ```bash
 ln -sf ~/maxdots/wallpapers ~/wallpapers
-```
+````
 
 | keybind        | action                      |
 | -------------- | --------------------------- |
